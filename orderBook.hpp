@@ -8,6 +8,7 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "computeQueue.hpp"
 #include "event.hpp"
 
 class OrderBook {
@@ -21,7 +22,6 @@ public:
 private:
     // Event Id -> Outcome -> Bookmaker -> Odds
     std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<std::string, OddsUpdate>>> order_book_;
-
     mutable std::mutex mtx_order_book_;
 };
 

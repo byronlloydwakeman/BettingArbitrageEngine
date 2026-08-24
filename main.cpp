@@ -14,14 +14,21 @@ int main() {
 
     IngestionQueue queue;
     OrderBook order_book;
+    ComputeQueue compute_queue;
+
+    compute_queue.startConsuming(order_book);
 
     // Almost like updating the big nasdaq stock screen with all the prices available at a given time
-    queue.startConsuming([&cout_mutex, &order_book](const auto& feed) {
+    queue.startConsuming([&cout_mutex, &order_book, &compute_queue](const auto& feed) {
         std::lock_guard lock(cout_mutex);
         std::cout << "Bookmaker Id: " << feed.bookmaker_id << std::endl;
         std::cout << "Event Id: " << feed.event_id << std::endl;
         std::cout << "Odds:" << feed.odds << std::endl;
         order_book.update(feed);
+
+        // When the order book is updated, we then should perform a compute to find arb
+        // But only with the event that has changed
+        compute_queue.push({feed.event_id});
     });
 
     // Queue to handle high concurrency
@@ -44,6 +51,7 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
     }
+
 
 
     for (auto& feed: feeds) {

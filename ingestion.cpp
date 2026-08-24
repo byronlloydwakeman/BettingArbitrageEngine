@@ -28,6 +28,7 @@ void IngestionQueue::startConsuming(std::function<void(const OddsUpdate &)> hand
 
 void IngestionQueue::stop() {
     is_running_ = false;
+    cv_.notify_all();
     std::cout << "Stopping the ingestion queue" << std::endl;
 
     if (consumer_thread_.joinable()) {
@@ -42,11 +43,15 @@ void IngestionQueue::consumeLoop(std::function<void(OddsUpdate&)> handler) {
             return !queue_.empty() || !is_running_;
         });
 
-        OddsUpdate update = queue_.front();
-        queue_.pop();
-        lock.unlock();
+        if (!queue_.empty()) {
+            OddsUpdate update = queue_.front();
+            queue_.pop();
+            lock.unlock();
 
-        // Pass through to the callback that handles the OddsUpdate instance
-        handler(update);
+            // Pass through to the callback that handles the OddsUpdate instance
+            handler(update);
+        }
+
+
     }
 }

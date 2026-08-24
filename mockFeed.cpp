@@ -6,22 +6,23 @@
 #include <format>
 
 MockFeed::MockFeed(std::string bookmaker_id)
-    : bookmaker_id_{std::move(bookmaker_id)} {}
+    : bookmaker_id_{std::move(bookmaker_id)} {
+}
 
 MockFeed::~MockFeed() {
     disconnect();
 }
 
-const std::vector<std::vector<std::vector<std::string>>> outcomes = {
+const std::vector<std::vector<std::vector<std::string> > > outcomes = {
     {
-        { "Arsenal | Chelsea", "Home win"},
+        {"Arsenal | Chelsea", FOOTBALL_OUTCOMES},
         {"Arsenal | Chelsea", "Draw"},
-        {"Arsenal | Chelsea","Away Win"}
+        {"Arsenal | Chelsea", "Away Win"}
     },
     {
-        { "Manchester United | Liverpool", "Home win"},
+        {"Manchester United | Liverpool", "Home win"},
         {"Manchester United | Liverpool", "Draw"},
-        {"Manchester United | Liverpool","Away Win"}
+        {"Manchester United | Liverpool", "Away Win"}
     }
 };
 
@@ -44,14 +45,12 @@ void MockFeed::setCallback(std::function<void(const OddsUpdate &)> callback) {
 }
 
 void MockFeed::run() {
-
     while (is_running_) {
-
         // Randomly pick a market set
         static thread_local std::mt19937 gen(std::random_device{}());
         std::uniform_int_distribution<> dist(0, outcomes.size() - 1);
 
-        const auto& market = outcomes[dist(gen)];
+        const auto &market = outcomes[dist(gen)];
 
         // Generate true probabilities
         std::vector<double> probs = generateTrueProbabilities(market.size());
@@ -74,7 +73,6 @@ void MockFeed::run() {
                 callback_(*feed);
             }
         }
-
     }
 }
 
@@ -106,11 +104,11 @@ std::vector<double> MockFeed::generateTrueProbabilities(int n) {
  * @param marginFactor Profit margin of which is set by the bookmaker
  * @return Vector array of bookmaker odds for a given market set of probabilities
  */
-std::vector<double> MockFeed::makeBookmakerOdds(const std::vector<double>& probs, double marginFactor) {
+std::vector<double> MockFeed::makeBookmakerOdds(const std::vector<double> &probs, double marginFactor) {
     std::vector<double> odds;
     odds.reserve(probs.size());
 
-    for (double p : probs) {
+    for (double p: probs) {
         double implied = p * marginFactor;
         odds.push_back(1.0 / implied);
     }

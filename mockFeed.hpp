@@ -22,6 +22,7 @@ public:
     static std::vector<double> makeBookmakerOdds(const std::vector<double>& probs, double marginFactor);
     static double generateMargin(double min = 1.02, double max = 1.12);
 
+
 private:
     std::string bookmaker_id_;
     std::function<void(const OddsUpdate &)> callback_;

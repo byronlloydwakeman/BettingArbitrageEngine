@@ -5,8 +5,10 @@
 #include "orderBook.hpp"
 
 void OrderBook::update(const OddsUpdate& update) {
-    std::unique_lock lock(mtx_order_book_);
-    order_book_[update.event_id][update.outcome].insert_or_assign(update.bookmaker_id, update);
+    {
+        std::unique_lock lock(mtx_order_book_);
+        order_book_[update.event_id][update.outcome].insert_or_assign(update.bookmaker_id, update);
+    }
 }
 
 std::vector<OddsUpdate> OrderBook::getOddsFor(

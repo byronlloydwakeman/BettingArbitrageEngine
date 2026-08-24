@@ -1,0 +1,16 @@
+//
+// Created by 44785 on 22/08/2026.
+//
+
+#ifndef BETTINGARBITRAGEENGINE_FOOTBALLOUTCOME_HPP
+#define BETTINGARBITRAGEENGINE_FOOTBALLOUTCOME_HPP
+
+
+enum class FootballOutcome {
+    HomeWin,
+    Draw,
+    AwayWin
+};
+
+
+#endif //BETTINGARBITRAGEENGINE_FOOTBALLOUTCOME_HPP
