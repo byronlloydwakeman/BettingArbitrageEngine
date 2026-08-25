@@ -51,10 +51,13 @@ void FootballComputeQueue::run(const OrderBook &order_book) {
 
             std::vector<ArbResponse> arb = findArbitrage(combined);
             // How to send this to the output feed?
-            for (auto& a_ : arb) {
-                std::cout << "FOUND AN ARBITRAGE: " << a_ << std::endl;
-                std::cout << a_ << std::endl;
+            if (arb.size() > 0) {
+                std::cout << "FOUND AN ARBITRAGE: " << std::endl;
+                for (auto& a_ : arb) {
+                    std::cout << a_ << std::endl;
+                }
             }
+
         }
     }
 }
@@ -73,10 +76,10 @@ std::vector<ArbResponse> FootballComputeQueue::findArbitrage(const std::vector<O
         if (toEnum(odd.outcome) == FootballOutcome::HomeWin && odd.odds > best_home.odds) {
             best_home = ArbResponse(odd.event_id, odd.bookmaker_id, odd.outcome, odd.odds);
         }
-        else if (toEnum(odd.outcome) == FootballOutcome::Draw) {
+        else if (toEnum(odd.outcome) == FootballOutcome::Draw && odd.odds > best_draw.odds) {
             best_draw =  ArbResponse(odd.event_id, odd.bookmaker_id, odd.outcome, odd.odds);
         }
-        else if (toEnum(odd.outcome) == FootballOutcome::AwayWin) {
+        else if (toEnum(odd.outcome) == FootballOutcome::AwayWin && odd.odds > best_away.odds) {
             best_away = ArbResponse(odd.event_id, odd.bookmaker_id, odd.outcome, odd.odds);
         }
     }
@@ -94,6 +97,7 @@ std::vector<ArbResponse> FootballComputeQueue::findArbitrage(const std::vector<O
         return_.push_back(best_home); // Home
         return_.push_back(best_away); // Away
         return_.push_back(best_draw); // Draw
+        return return_;
     }
     else {
         return {};

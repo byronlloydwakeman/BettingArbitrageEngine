@@ -18,9 +18,13 @@ public:
     void disconnect() override;
     ~MockFeed() override;
 
+    std::vector<double> applyBookmakerBias(
+    const std::vector<double>& probs,
+    const std::string& event_id
+);
     static std::vector<double> generateTrueProbabilities(int n);
     static std::vector<double> makeBookmakerOdds(const std::vector<double>& probs, double marginFactor);
-    static double generateMargin(double min = 1.02, double max = 1.12);
+    static double generateMargin(double min = 1.10, double max = 1.12);
 
 
 private:

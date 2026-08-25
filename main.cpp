@@ -24,9 +24,6 @@ int main() {
     // Almost like updating the big nasdaq stock screen with all the prices available at a given time
     queue.startConsuming([&cout_mutex, &order_book, &compute_queue](const auto& feed) {
         std::lock_guard lock(cout_mutex);
-        std::cout << "Bookmaker Id: " << feed.bookmaker_id << std::endl;
-        std::cout << "Event Id: " << feed.event_id << std::endl;
-        std::cout << "Odds:" << feed.odds << std::endl;
         order_book.update(feed);
 
         // When the order book is updated, we then should perform a compute to find arb
@@ -47,17 +44,14 @@ int main() {
     }
 
     // Actually go through the order_book at search for arb opportunities
-    for (int i = 0; i < 5; i++ ) {
-        for (auto& order : order_book.getOddsFor("Arsenal | Chelsea", "Home win")) {
-            std::cout << order << std::endl;
-        }
+    for (int i = 0; i < 500; i++ ) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
     }
-
-
 
     for (auto& feed: feeds) {
         feed->disconnect();
     }
+
+    queue.stop();
+    compute_queue.stop();
 };

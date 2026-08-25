@@ -111,7 +111,7 @@ std::vector<double> MockFeed::makeBookmakerOdds(const std::vector<double> &probs
     odds.reserve(probs.size());
 
     for (double p: probs) {
-        double implied = p * marginFactor;
+        double implied = p * (1.0 + marginFactor);
         odds.push_back(1.0 / implied);
     }
     return odds;
@@ -119,7 +119,7 @@ std::vector<double> MockFeed::makeBookmakerOdds(const std::vector<double> &probs
 
 /**
  * Utility method to randomly generate a profit margin for a bookmaker
- * @param min Minimum margin, default is 2%
+ * @param min Minimum margin, default is 10%
  * @param max Maximum margin, default is 12%
  * @return Double within the given min - max range
  */
