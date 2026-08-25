@@ -9,6 +9,8 @@
 #include <chrono>
 #include <string>
 
+#include "footballOutcome.hpp"
+
 
 struct OddsUpdate {
     std::string event_id;

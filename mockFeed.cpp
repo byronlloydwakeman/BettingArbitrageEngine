@@ -5,6 +5,8 @@
 #include <iostream>
 #include <format>
 
+#include "footballOutcome.hpp"
+
 MockFeed::MockFeed(std::string bookmaker_id)
     : bookmaker_id_{std::move(bookmaker_id)} {
 }
@@ -13,16 +15,16 @@ MockFeed::~MockFeed() {
     disconnect();
 }
 
-const std::vector<std::vector<std::vector<std::string> > > outcomes = {
+const std::vector<std::vector<std::pair<std::string, FootballOutcome> > > outcomes = {
     {
-        {"Arsenal | Chelsea", FOOTBALL_OUTCOMES},
-        {"Arsenal | Chelsea", "Draw"},
-        {"Arsenal | Chelsea", "Away Win"}
+        {"Arsenal | Chelsea", FootballOutcome::HomeWin},
+        {"Arsenal | Chelsea", FootballOutcome::Draw},
+        {"Arsenal | Chelsea", FootballOutcome::AwayWin}
     },
     {
-        {"Manchester United | Liverpool", "Home win"},
-        {"Manchester United | Liverpool", "Draw"},
-        {"Manchester United | Liverpool", "Away Win"}
+        {"Manchester United | Liverpool", FootballOutcome::HomeWin},
+        {"Manchester United | Liverpool", FootballOutcome::Draw},
+        {"Manchester United | Liverpool", FootballOutcome::AwayWin}
     }
 };
 
@@ -62,8 +64,8 @@ void MockFeed::run() {
         // Build feed updates
         for (size_t i = 0; i < market.size(); i++) {
             auto feed = std::make_unique<OddsUpdate>(
-                market[i][0],
-                market[i][1],
+                market[i].first,
+                toString(market[i].second),
                 bookmaker_id_,
                 odds[i],
                 std::chrono::system_clock::now()

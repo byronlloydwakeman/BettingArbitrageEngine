@@ -3,6 +3,7 @@
 #include "ingestion.hpp"
 #include "mockFeed.hpp"
 #include "orderBook.hpp"
+#include "footballComputeQueue.hpp"
 
 int main() {
     std::vector<std::unique_ptr<IFeed>> feeds;
@@ -14,7 +15,9 @@ int main() {
 
     IngestionQueue queue;
     OrderBook order_book;
-    ComputeQueue compute_queue;
+
+    // Currently built to handle football odds
+    FootballComputeQueue compute_queue;
 
     compute_queue.startConsuming(order_book);
 

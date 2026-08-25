@@ -8,7 +8,6 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "computeQueue.hpp"
 #include "event.hpp"
 
 class OrderBook {

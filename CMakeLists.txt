@@ -12,7 +12,8 @@ add_executable(BettingArbitrageEngine main.cpp
         ingestion.hpp
         orderBook.cpp
         orderBook.hpp
-        computeQueue.cpp
-        computeQueue.hpp
+        footballComputeQueue.cpp
+        footballComputeQueue.hpp
         footballOutcome.hpp
+        computeQueue.hpp
 )
