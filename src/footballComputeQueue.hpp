@@ -13,28 +13,34 @@
 
 #include "orderBook.hpp"
 #include "computeQueue.hpp"
+#include "metricsRecorder.hpp"
 
 
-class FootballComputeQueue : IComputeQueue {
+namespace prometheus {
+    class Registry;
+}
+
+class FootballComputeQueue : public IComputeQueue {
 public:
-    FootballComputeQueue();
+    explicit FootballComputeQueue(std::shared_ptr<IMetricsRecorder> metrics_recorder);
     ~FootballComputeQueue();
 
     // Push an event id that has changed to the queue to compute
     void push(const ArbCheckRequest& arb_check_request);
     // Start new process
-    void startConsuming(const OrderBook& order_book);
+    void startConsuming(OrderBook& order_book);
     // Find arb opportunities
     std::vector<ArbResponse>  findArbitrage(const std::vector<OddsUpdate>& odds);
     void stop();
 
 private:
-    void run(const OrderBook& order_book);
+    void run(OrderBook& order_book);
     std::queue<ArbCheckRequest> queue_;
     std::mutex mutex_;
     std::condition_variable cv_;
     std::atomic<bool> is_running_{false};
     std::thread consumer_thread_;
+    std::shared_ptr<IMetricsRecorder> metrics_recorder_;
 };
 
 

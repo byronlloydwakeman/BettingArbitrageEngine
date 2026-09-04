@@ -4,10 +4,12 @@
 
 #include "footballComputeQueue.hpp"
 
-#include <algorithm>
 #include <iostream>
+#include <utility>
 
-FootballComputeQueue::FootballComputeQueue() = default;
+FootballComputeQueue::FootballComputeQueue(std::shared_ptr<IMetricsRecorder> metrics_recorder) {
+    metrics_recorder_ = std::move(metrics_recorder);
+}
 
 FootballComputeQueue::~FootballComputeQueue() {
     stop();
@@ -19,12 +21,12 @@ void FootballComputeQueue::push(const ArbCheckRequest &arb_check_request) {
     cv_.notify_all();
 }
 
-void FootballComputeQueue::startConsuming(const OrderBook &order_book) {
+void FootballComputeQueue::startConsuming(OrderBook &order_book) {
     is_running_ = true;
-    consumer_thread_ = std::thread(&FootballComputeQueue::run, this, std::cref(order_book));
+    consumer_thread_ = std::thread(&FootballComputeQueue::run, this, std::ref(order_book));
 }
 
-void FootballComputeQueue::run(const OrderBook &order_book) {
+void FootballComputeQueue::run(OrderBook &order_book) {
     while (is_running_) {
         std::unique_lock lock(mutex_);
         cv_.wait(lock, [this] {
@@ -52,9 +54,15 @@ void FootballComputeQueue::run(const OrderBook &order_book) {
             std::vector<ArbResponse> arb = findArbitrage(combined);
             // How to send this to the output feed?
             if (arb.size() > 0) {
+                metrics_recorder_->recordArbFound();
                 std::cout << "FOUND AN ARBITRAGE: " << std::endl;
                 for (auto& a_ : arb) {
                     std::cout << a_ << std::endl;
+                }
+
+                // Remove odds from order book to avoid the same arb being detected/acted on again
+                for (auto& a_ : arb) {
+                    order_book.removeOddsFor(a_.event_id, a_.odds, a_.outcome, a_.bookmaker_id);
                 }
             }
 
@@ -90,6 +98,7 @@ std::vector<ArbResponse> FootballComputeQueue::findArbitrage(const std::vector<O
     }
 
     double implied_sum = (1 / best_home.odds) + (1 / best_draw.odds) + (1 / best_away.odds);
+    metrics_recorder_->observeImpliedSum(implied_sum);
 
     std::vector<ArbResponse> return_;
     return_.reserve(3);

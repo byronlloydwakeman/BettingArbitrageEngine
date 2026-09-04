@@ -49,7 +49,7 @@ public:
     // Push an event id that has changed to the queue to compute
     void push(const ArbCheckRequest& arb_check_request);
     // Start new process
-    void startConsuming(const OrderBook& order_book);
+    void startConsuming(OrderBook& order_book);
     // Find arb opportunities
     std::vector<ArbResponse>  findArbitrage(const std::vector<OddsUpdate>& odds);
     void stop();

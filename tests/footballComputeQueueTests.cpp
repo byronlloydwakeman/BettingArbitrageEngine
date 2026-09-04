@@ -7,6 +7,7 @@
 #include "footballComputeQueue.hpp"
 #include "event.hpp"
 #include "footballOutcome.hpp"
+#include "mockMetricsRecorder.hpp"
 
 namespace {
     std::chrono::system_clock::time_point now() {
@@ -21,7 +22,7 @@ namespace {
 
 class FindArbitrageTest : public ::testing::Test {
 protected:
-    FootballComputeQueue queue;
+    FootballComputeQueue queue = FootballComputeQueue(std::make_shared<MockMetricsRecorder>());
 };
 
 TEST_F(FindArbitrageTest, ReturnsEmptyWhenInputIsEmpty) {

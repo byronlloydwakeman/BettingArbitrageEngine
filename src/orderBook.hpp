@@ -18,6 +18,8 @@ public:
     // Gets the odds for a given event and outcome
     std::vector<OddsUpdate> getOddsFor(const std::string& event_id, const std::string& outcome) const;
 
+    void removeOddsFor(const std::string& event_id, double odds, const std::string& outcome, const std::string& bookmaker);
+
 private:
     // Event Id -> Outcome -> Bookmaker -> Odds
     std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<std::string, OddsUpdate>>> order_book_;

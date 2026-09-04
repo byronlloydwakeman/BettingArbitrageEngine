@@ -4,8 +4,20 @@
 #include "mockFeed.hpp"
 #include "orderBook.hpp"
 #include "footballComputeQueue.hpp"
+#include "prometheusMetricRecorder.hpp"
+#include "prometheus/counter.h"
+#include "prometheus/exposer.h"
+#include "prometheus/histogram.h"
+#include "prometheus/registry.h"
+
 
 int main() {
+    // Prometheus / Grafana setup
+    prometheus::Exposer exposer{"127.0.0.1:8080"};
+    auto registry = std::make_shared<prometheus::Registry>();
+    exposer.RegisterCollectable(registry);
+    auto metrics = std::make_shared<PrometheusMetricRecorder>(registry);
+
     std::vector<std::unique_ptr<IFeed>> feeds;
     feeds.push_back(std::make_unique<MockFeed>("Bet365"));
     feeds.push_back(std::make_unique<MockFeed>("BetFred"));
@@ -17,7 +29,7 @@ int main() {
     OrderBook order_book;
 
     // Currently built to handle football odds
-    FootballComputeQueue compute_queue;
+    FootballComputeQueue compute_queue(metrics);
 
     compute_queue.startConsuming(order_book);
 
@@ -25,6 +37,7 @@ int main() {
     queue.startConsuming([&cout_mutex, &order_book, &compute_queue](const auto& feed) {
         std::lock_guard lock(cout_mutex);
         order_book.update(feed);
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Temp
 
         // When the order book is updated, we then should perform a compute to find arb
         // But only with the event that has changed
